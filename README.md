@@ -1,8 +1,8 @@
-# 📚 Content Analyzer for LLM Citability
+# LLM Content Optimizer
 
-A Streamlit-based web application that analyzes written content to determine how effectively it can be cited and referenced by Large Language Models (LLMs).
+A Streamlit web app that measures how quotable your content is for Large Language Models. It scores a page or draft against the structural and factual signals LLMs rely on when deciding what to cite, and returns a prioritized list of improvements.
 
-## 🎯 Features
+## Features
 
 - **Comprehensive Text Analysis**: Word count, sentence structure, paragraph organization
 - **LLM-Optimized Metrics**: Heading ratios, list usage, structural elements
@@ -12,7 +12,7 @@ A Streamlit-based web application that analyzes written content to determine how
 - **Dual Input Modes**: Paste text or crawl URLs
 - **Actionable Recommendations**: Specific suggestions to improve content
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Clone the repository
@@ -26,7 +26,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## 📋 Usage
+## Usage
 
 ### Option 1: Analyze Pasted Content
 1. Paste your content into the text area
@@ -38,28 +38,28 @@ streamlit run app.py
 2. Click "Crawl URL and analyze"
 3. Review extracted content and analysis
 
-## 📊 Metrics Explained
+## Metrics Explained
 
 - **Word/Sentence/Paragraph Count**: Basic text statistics
-- **Average Sentence Length**: Target ≤ 25 words
-- **Heading Ratio**: Target ≥ 0.20
-- **List Ratio**: Target ≥ 0.10
+- **Average Sentence Length**: Target <= 25 words
+- **Heading Ratio**: Target >= 0.20
+- **List Ratio**: Target >= 0.10
 - **Numbers/URLs/Citations**: Citability signals
 - **Type-Token Ratio**: Lexical diversity
 - **Repetition Score**: Content redundancy
 
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## 📝 License
+## License
 
 MIT License - see [LICENSE](LICENSE)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built with [Streamlit](https://streamlit.io/), [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/)
 
 ---
 
-Made with ❤️ for better content optimization
+Made by Felipe Saenz for better content optimization

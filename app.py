@@ -7,6 +7,8 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 
+from branding import apply_branding, brand_header, project_panel, metric_guide, signature
+
 
 # ========= ANALYSIS LOGIC =========
 
@@ -194,8 +196,8 @@ def fetch_url_content(url: str, timeout: int = 15) -> Tuple[str, str]:
 
 def render_analysis(analysis: ContentAnalysis, original_text: str) -> None:
     data = asdict(analysis)
-    
-    st.subheader("📊 Metrics Summary")
+
+    st.subheader("Metrics Summary")
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric("Words", analysis.word_count)
@@ -210,27 +212,40 @@ def render_analysis(analysis: ContentAnalysis, original_text: str) -> None:
         st.metric("URLs in Text", analysis.url_count)
         st.metric("Citation-like Patterns", analysis.citation_like_count)
     
+    metric_guide(
+        "How to read these metrics",
+        {
+            "Words / Sentences / Paragraphs": "Overall size of the content. Very short pages rarely get cited by LLMs; aim for 500+ words of substance.",
+            "Avg. Sentence Length": "Words per sentence. Above ~25 hurts clarity and machine comprehension; keep it lower.",
+            "Very Long Paragraphs": "Paragraphs over 120 words. LLMs parse and quote short, self-contained chunks more reliably.",
+            "Repetition Score": "How often the same word-pair repeats. High values signal padding; lower is better.",
+            "Numbers Detected": "Concrete figures, dates and percentages. These are the facts models love to cite verbatim.",
+            "URLs in Text": "Outbound links to sources. They add authority and give the model something to attribute.",
+            "Citation-like Patterns": "References such as [1] or (2024). Their presence makes the page read as sourced and trustworthy.",
+        },
+    )
+
     st.markdown("---")
-    st.subheader("🧱 Structure & LLM Signals")
+    st.subheader("Structure & LLM Signals")
     col4, col5 = st.columns(2)
     with col4:
         st.write("**Headings per Paragraph (ratio)**")
         st.progress(min(1.0, analysis.heading_ratio))
-        st.write(f"Value: `{analysis.heading_ratio:.2f}` (target ≥ 0.20)")
+        st.write(f"Value: `{analysis.heading_ratio:.2f}` (target >= 0.20)")
     with col5:
         st.write("**Lists per Paragraph (ratio)**")
         st.progress(min(1.0, analysis.list_ratio))
-        st.write(f"Value: `{analysis.list_ratio:.2f}` (target ≥ 0.10)")
-    
+        st.write(f"Value: `{analysis.list_ratio:.2f}` (target >= 0.10)")
+
     st.markdown("---")
-    st.subheader("🧠 Lexical Diversity")
+    st.subheader("Lexical Diversity")
     st.write(
         f"**Type-Token Ratio (TTR):** `{analysis.type_token_ratio:.3f}` "
-        "(ratio between unique words and total words)."
+        "(ratio between unique words and total words). Higher means richer vocabulary."
     )
-    
+
     st.markdown("---")
-    st.subheader("✅ Recommendations to Improve 'Citability'")
+    st.subheader("Recommendations to Improve Citability")
     if analysis.recommendations:
         for rec in analysis.recommendations:
             st.markdown(f"- {rec}")
@@ -239,83 +254,85 @@ def render_analysis(analysis: ContentAnalysis, original_text: str) -> None:
             "No recommendations generated. The content already matches the basic heuristics defined."
         )
     
-    with st.expander("🛠 Technical Analysis Details (JSON)"):
+    with st.expander("Technical Analysis Details (JSON)"):
         st.json(data)
-    
-    with st.expander("📝 Raw Analyzed Text"):
+
+    with st.expander("Raw Analyzed Text"):
         st.text_area("Content used for the analysis:", value=original_text, height=250)
 
 
 def main():
     st.set_page_config(
         page_title="Content Analyzer for LLM Citability",
-        page_icon="📚",
         layout="wide",
     )
-    
-    st.title("📚 Content Analyzer for LLM Citability")
-    st.write(
-        "Paste your content or provide a URL to get metrics and recommendations "
-        "to make it more useful and 'citable' for large language models."
+
+    apply_branding()
+    brand_header(
+        "LLM Content Optimizer",
+        "Measure how quotable your content is for AI models and get concrete fixes.",
     )
-    
-    with st.expander("💡 How This Tool Works", expanded=False):
-        st.markdown(
-            """
-        - **Analyzes structure**: words, sentences, paragraphs, headings, lists  
-        - **Looks for 'citable' signals**: numbers, URLs, citation-like patterns  
-        - **Evaluates lexical diversity**: type-token ratio and repetition patterns  
-        - **Generates practical suggestions**: actionable recommendations to improve content
-        """
-        )
-    
-    st.markdown("### ✍️ Option 1: Paste Content")
+    project_panel(
+        "This tool scores a page or draft against the structural and factual signals that "
+        "large language models rely on when they decide what to quote. It analyzes length, "
+        "readability, headings, lists, numeric data and references, then returns a prioritized "
+        "list of improvements to make your content more likely to be cited in AI answers.",
+        points=[
+            "Paste text directly or crawl a live URL.",
+            "Get objective metrics instead of guesswork.",
+            "Turn recommendations into edits that raise citability.",
+        ],
+    )
+
+    st.markdown("### Option 1: Paste Content")
     pasted_text = st.text_area(
         "Paste your article, guide, or long-form content here:",
         height=250,
         placeholder="Write or paste your text here...",
         key="pasted_text",
     )
-    
-    analyze_paste_button = st.button("🔍 Analyze Pasted Content")
-    
+
+    analyze_paste_button = st.button("Analyze Pasted Content")
+
     st.markdown("---")
-    st.markdown("### 🌐 Option 2: Analyze a URL")
+    st.markdown("### Option 2: Analyze a URL")
     url = st.text_input(
         "Enter a URL to crawl and analyze its main content:",
         placeholder="https://example.com/article",
         key="url_input",
     )
-    
-    analyze_url_button = st.button("🕷️ Crawl URL and Analyze")
-    
+
+    analyze_url_button = st.button("Crawl URL and Analyze")
+
     if analyze_paste_button:
         if not pasted_text.strip():
-            st.warning("⚠️ Please paste some content to analyze.")
+            st.warning("Please paste some content to analyze.")
         else:
-            with st.spinner("Analyzing pasted content... ⏳"):
+            with st.spinner("Analyzing pasted content..."):
                 analysis = analyze_text(pasted_text)
                 render_analysis(analysis, pasted_text)
-    
+
     if analyze_url_button:
         if not url.strip():
-            st.warning("⚠️ Please enter a valid URL.")
+            st.warning("Please enter a valid URL.")
         else:
             try:
-                with st.spinner("Crawling URL and analyzing content... ⏳"):
+                with st.spinner("Crawling URL and analyzing content..."):
                     page_title, extracted_text = fetch_url_content(url)
-                    
+
                     if not extracted_text.strip():
-                        st.error("❌ Could not extract meaningful content from the provided URL.")
+                        st.error("Could not extract meaningful content from the provided URL.")
                         return
-                    
-                    st.info(f"✅ Content extracted from: **{page_title}**")
+
+                    st.info(f"Content extracted from: **{page_title}**")
                     analysis = analyze_text(extracted_text)
                     render_analysis(analysis, extracted_text)
             except requests.exceptions.RequestException as e:
-                st.error(f"❌ Network/HTTP error while fetching the URL: {e}")
+                st.error(f"Network/HTTP error while fetching the URL: {e}")
             except Exception as e:
-                st.error(f"❌ Unexpected error while crawling or analyzing the URL: {e}")
+                st.error(f"Unexpected error while crawling or analyzing the URL: {e}")
+
+    signature()
 
 
 if __name__ == "__main__":
